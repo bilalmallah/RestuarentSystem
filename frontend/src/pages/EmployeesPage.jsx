@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { api } from "../api";
-import { Btn, Card, Modal, Field, PageHeader, Badge, Input, Select, Spinner, EmptyState, Table, TD } from "../components/UI";
+import { Btn, Card, Modal, Field, PageHeader, Badge, Input, Select, Spinner, EmptyState, Table, TD,useDeleteConfirm  } from "../components/UI";
 
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState([]);
@@ -8,6 +8,7 @@ export default function EmployeesPage() {
   const [modal, setModal] = useState(null); // null | "add" | employee_id
   const [form, setForm] = useState({ name: "", role: "Staff", phone: "", joined_date: new Date().toISOString().slice(0, 10) });
   const [saving, setSaving] = useState(false);
+  const { confirm, modal: deleteModal } = useDeleteConfirm();
 
   const load = async () => {
     try {
@@ -37,12 +38,13 @@ export default function EmployeesPage() {
       else await api.updateEmployee(modal, form);
       await load();
       setModal(null);
-    } catch (e) { alert(e.message); }
+    } catch (e) { toast.error(e.message || "Failed to save"); }
     finally { setSaving(false); }
   };
 
   const remove = async (id, name) => {
-    if (!window.confirm(`Remove ${name}? Their commission records will be kept.`)) return;
+    const ok = await confirm(`${name}`);
+    if (!ok) return;
     await api.deleteEmployee(id);
     load();
   };
@@ -53,6 +55,7 @@ export default function EmployeesPage() {
 
   return (
     <div>
+      {deleteModal}
       <PageHeader
         title="Employees"
         subtitle={`${employees.length} active staff — no fixed salary, commission-based`}

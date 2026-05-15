@@ -27,7 +27,7 @@ export default function LoginPage() {
     <div style={{ minHeight: "100vh", background: "#0f1117", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}>
       <div style={{ background: "#13151f", border: "1px solid #1e2235", borderRadius: 16, padding: "48px 40px", width: 380, textAlign: "center" }}>
         <div style={{ fontSize: 44, marginBottom: 8 }}>🍽</div>
-        <div style={{ fontSize: 26, fontWeight: 800, color: "#f5a623", marginBottom: 4 }}>RestaurantOS</div>
+        <div style={{ fontSize: 26, fontWeight: 800, color: "#f5a623", marginBottom: 4 }}>Sindhu Fish Point</div>
         <div style={{ color: "#8892b0", fontSize: 13, marginBottom: 32 }}>Commission & Business Management</div>
 
         {error && (

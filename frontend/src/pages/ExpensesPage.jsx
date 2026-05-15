@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "../api";
-import { Btn, Card, Modal, Field, PageHeader, Badge, Input, Select, Spinner, Table, TD, Rs } from "../components/UI";
+import { Btn, Card, Modal, Field, PageHeader, Badge, Input, Select, Spinner, Table, TD, Rs, toast, useDeleteConfirm } from "../components/UI";
 import { useAuth } from "../context/AuthContext";
 
 const CATEGORIES = ["Food & Ingredients", "Utilities", "Staff", "Maintenance", "Rent", "Transport", "Marketing", "Cleaning", "Equipment", "Other"];
@@ -14,6 +14,7 @@ export default function ExpensesPage() {
   const [modal, setModal] = useState(false);
   const [form, setForm] = useState({ date: new Date().toISOString().slice(0, 10), category: "Other", description: "", amount: "", paid_by: user?.name || "" });
   const [saving, setSaving] = useState(false);
+  const { confirm, modal: deleteModal } = useDeleteConfirm();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -32,14 +33,18 @@ export default function ExpensesPage() {
       await load();
       setModal(false);
       setForm({ date: new Date().toISOString().slice(0, 10), category: "Other", description: "", amount: "", paid_by: user?.name || "" });
-    } catch (e) { alert(e.message); }
+    } catch (e) { toast.error(e.message || "Failed to save expense"); }
     finally { setSaving(false); }
   };
 
   const remove = async (id) => {
-    if (!window.confirm("Delete this expense?")) return;
-    await api.deleteExpense(id);
-    load();
+    const ok = await confirm("this expense");
+    if (!ok) return;
+    try {
+      await api.deleteExpense(id);
+      load();
+      toast.success("Expense deleted");
+    } catch(e) { toast.error(e.message || "Failed to delete"); }
   };
 
   const total = expenses.reduce((s, e) => s + Number(e.amount), 0);
@@ -47,6 +52,7 @@ export default function ExpensesPage() {
 
   return (
     <div>
+      {deleteModal}
       <PageHeader
         title="Expenses"
         subtitle={`Total this month: ${Rs(total)}`}

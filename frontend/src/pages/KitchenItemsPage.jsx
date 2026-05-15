@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { api } from "../api";
-import { Btn, Card, Modal, Field, PageHeader, Badge, Input, Select, Spinner, Table, TD, EmptyState } from "../components/UI";
+// import { Btn, Card, Modal, Field, PageHeader, Badge, Input, Select, Spinner, Table, TD, EmptyState } from "../components/UI";
+import { Btn, Card, Modal, Field, PageHeader, Badge, Input, Select, Spinner, Table, TD, Rs, toast, useDeleteConfirm } from "../components/UI";
 
 const CATEGORIES = ["Meat", "Vegetables", "Spices", "Dry Goods", "Dairy", "Pulses", "Beverages", "Supplies", "Utilities", "General"];
 const UNITS = ["kg", "g", "litre", "ml", "pcs", "pkt", "dozen", "bag", "box", "tin", "bottle", "bundle"];
@@ -13,6 +14,7 @@ export default function KitchenItemsPage() {
   const [modal, setModal] = useState(null);
   const [form, setForm] = useState({ name: "", category: "General", unit: "kg", min_quantity: "" });
   const [saving, setSaving] = useState(false);
+  const { confirm, modal: deleteModal } = useDeleteConfirm();
   const [search, setSearch] = useState("");
   const [filterCat, setFilterCat] = useState("All");
 
@@ -32,11 +34,12 @@ export default function KitchenItemsPage() {
       if (modal === "add") await api.addKitchenItem(form);
       else await api.updateKitchenItem(modal, form);
       await load(); setModal(null);
-    } catch (e) { alert(e.message); } finally { setSaving(false); }
+    } catch (e) { toast.error(e.message || "Failed to save"); } finally { setSaving(false); }
   };
 
   const remove = async (id, name) => {
-    if (!window.confirm(`Remove "${name}" from kitchen items?`)) return;
+    const ok = await confirm(`"${name}" from kitchen items`);
+    if (!ok) return;
     await api.deleteKitchenItem(id); load();
   };
 
@@ -53,6 +56,7 @@ export default function KitchenItemsPage() {
 
   return (
     <div>
+      {deleteModal}
       <PageHeader
         title="Kitchen Items"
         subtitle={`${items.length} items in your kitchen master list`}

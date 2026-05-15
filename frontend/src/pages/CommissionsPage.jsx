@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "../api";
-import { Btn, Card, Modal, Field, PageHeader, Badge, Input, Select, Spinner, Table, TD, Rs } from "../components/UI";
+import { Btn, Card, Modal, Field, PageHeader, Badge, Input, Select, Spinner, Table, TD, Rs, toast, useDeleteConfirm } from "../components/UI";
 import { useAuth } from "../context/AuthContext";
 
 const TODAY = () => new Date().toISOString().slice(0, 10);
@@ -19,6 +19,7 @@ export default function CommissionsPage() {
   const [commModal, setCommModal] = useState(null); // null | "add" | commission_id
   const [commForm, setCommForm] = useState({ employee_id: "", amount: "", note: "" });
   const [savingComm, setSavingComm] = useState(false);
+  const { confirm, modal: deleteModal } = useDeleteConfirm();
 
   // Payout modal
   const [payoutModal, setPayoutModal] = useState(false);
@@ -48,7 +49,7 @@ export default function CommissionsPage() {
     try {
       await api.saveSale({ date, total_sale: Number(saleInput), note: saleNote });
       await load();
-    } catch (e) { alert(e.message); }
+    } catch (e) { toast.error(e.message || "Failed"); }
     finally { setSavingSale(false); }
   };
 
@@ -71,12 +72,13 @@ export default function CommissionsPage() {
       });
       await load();
       setCommModal(null);
-    } catch (e) { alert(e.message); }
+    } catch (e) { toast.error(e.message || "Failed"); }
     finally { setSavingComm(false); }
   };
 
   const deleteComm = async (id) => {
-    if (!window.confirm("Delete this commission entry?")) return;
+    const ok1 = await confirm("this commission entry");
+    if (!ok1) return;
     await api.deleteCommission(id);
     load();
   };
@@ -89,12 +91,13 @@ export default function CommissionsPage() {
       await load();
       setPayoutModal(false);
       setPayoutForm({ recipient: "", recipient_type: "owner", amount: "", note: "" });
-    } catch (e) { alert(e.message); }
+    } catch (e) { toast.error(e.message || "Failed"); }
     finally { setSavingPayout(false); }
   };
 
   const deletePayout = async (id) => {
-    if (!window.confirm("Delete this payout?")) return;
+    const ok2 = await confirm("this payout");
+    if (!ok2) return;
     await api.deletePayout(id);
     load();
   };
@@ -108,6 +111,7 @@ export default function CommissionsPage() {
 
   return (
     <div>
+      {deleteModal}
       <PageHeader
         title="Daily Commission Entry"
         subtitle={`Record today's sales, employee commissions & fixed payouts`}

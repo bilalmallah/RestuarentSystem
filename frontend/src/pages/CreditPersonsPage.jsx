@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { toast, useDeleteConfirm } from "../components/UI";
 import { api } from "../api";
 
 const fmt = (n) =>
@@ -27,6 +28,7 @@ export default function CreditPersonsPage({ onSelectPerson }) {
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
+  const { confirm, modal: deleteModal } = useDeleteConfirm();
 
   const load = async () => {
     try {
@@ -59,12 +61,14 @@ export default function CreditPersonsPage({ onSelectPerson }) {
 
   const handleDelete = async (id, e) => {
     e.stopPropagation();
-    if (!window.confirm("Remove this person?")) return;
+    const ok = await confirm("this person");
+    if (!ok) return;
     try {
       await api.deleteCreditPerson(id);
       load();
+      toast.success("Person removed from Khata");
     } catch (e) {
-      setError(e.message);
+      toast.error(e.message || "Failed to remove person");
     }
   };
 
@@ -79,6 +83,7 @@ export default function CreditPersonsPage({ onSelectPerson }) {
 
   return (
     <div>
+      {deleteModal}
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28 }}>
         <div>

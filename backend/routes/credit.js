@@ -123,14 +123,14 @@ router.get("/transactions/:personId", async (req, res) => {
 
 // POST /api/credit/transactions
 router.post("/transactions", async (req, res) => {
-  const { person_id, amount, type, description = "", txn_date } = req.body;
+  const { person_id, amount, type, description = "", txn_date, invoice_number = "" } = req.body;
   if (!person_id || !amount || !type)
     return res.status(400).json({ error: "person_id, amount and type are required" });
   try {
     const { rows } = await db.query(
-      `INSERT INTO credit_transactions (person_id, amount, type, description, txn_date)
-       VALUES ($1,$2,$3,$4,$5) RETURNING *`,
-      [person_id, Math.abs(Number(amount)), type, description.trim(), txn_date || new Date().toISOString().slice(0,10)]
+      `INSERT INTO credit_transactions (person_id, amount, type, description, txn_date, invoice_number)
+       VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
+      [person_id, Math.abs(Number(amount)), type, description.trim(), txn_date || new Date().toISOString().slice(0,10), invoice_number.trim()]
     );
     res.status(201).json(rows[0]);
   } catch (e) {

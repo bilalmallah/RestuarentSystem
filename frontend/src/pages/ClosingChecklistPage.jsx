@@ -33,13 +33,13 @@ export default function ClosingChecklistPage() {
       setView("active");
       setStartModal(false);
       await loadList();
-    } catch (e) { alert(e.message); } finally { setStarting(false); }
+    } catch (e) { toast.error(e.message || "Failed"); } finally { setStarting(false); }
   };
 
   const openChecklist = async (id) => {
     setLoading(true);
     try { setActive(await api.getChecklist(id)); setView("active"); }
-    catch (e) { alert(e.message); } finally { setLoading(false); }
+    catch (e) { toast.error(e.message || "Failed"); } finally { setLoading(false); }
   };
 
   const updateEntry = async (entry, changes) => {
@@ -54,14 +54,15 @@ export default function ClosingChecklistPage() {
   };
 
   const completeChecklist = async () => {
-    if (!window.confirm("Mark checklist as complete and generate PDFs?")) return;
+    // Show toast instead of confirm - this action is non-destructive
+    toast.info("Completing checklist and generating PDFs…");
     setCompleting(true);
     try {
       const result = await api.completeChecklist(active.id);
       setCompletedResult(result);
       setActive(prev => ({ ...prev, status: "completed", pdf_path: result.pdfPath }));
       await loadList();
-    } catch (e) { alert(e.message); } finally { setCompleting(false); }
+    } catch (e) { toast.error(e.message || "Failed"); } finally { setCompleting(false); }
   };
 
   // Group entries by their kitchen item's category

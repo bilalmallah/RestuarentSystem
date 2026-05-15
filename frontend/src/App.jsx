@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "./context/AuthContext";
+import { ToastProvider } from "./components/UI";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import EmployeesPage from "./pages/EmployeesPage";
@@ -67,11 +68,12 @@ export default function App() {
 
   return (
     <div style={{ display:"flex", minHeight:"100vh", background:"#0f1117", color:"#e8e8e8", fontFamily:"'Outfit', sans-serif" }}>
+      <ToastProvider />
       {/* Sidebar */}
       <div style={{ width:240, background:"#0d0f1a", borderRight:"1px solid #1e2235", display:"flex", flexDirection:"column", position:"fixed", top:0, left:0, height:"100vh", zIndex:100, overflowY:"auto" }}>
         {/* Logo */}
         <div style={{ padding:"20px 20px 16px", borderBottom:"1px solid #1e2235", flexShrink:0 }}>
-          <div style={{ fontSize:19, fontWeight:800, color:"#f5a623" }}>🍽 RestaurantOS</div>
+          <div style={{ fontSize:19, fontWeight:800, color:"#f5a623" }}>🍽 Sindhu Fish Point</div>
           <div style={{ fontSize:11, color:"#8892b0", marginTop:2 }}>v2.0 · PostgreSQL</div>
         </div>
 
