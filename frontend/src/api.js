@@ -65,4 +65,14 @@ export const api = {
 
   // PDF download URL (direct link)
   pdfUrl: (filename) => `${BASE}/kitchen/pdf/${filename}?token=${getToken()}`,
+
+  // Credit / Debit (Khata)
+  getCreditPersons:      ()         => req("GET",    "/credit/persons"),
+  addCreditPerson:       (b)        => req("POST",   "/credit/persons", b),
+  updateCreditPerson:    (id, b)    => req("PUT",    `/credit/persons/${id}`, b),
+  deleteCreditPerson:    (id)       => req("DELETE", `/credit/persons/${id}`),
+  getCreditTransactions: (personId) => req("GET",    `/credit/transactions/${personId}`),
+  addCreditTransaction:  (b)        => req("POST",   "/credit/transactions", b),
+  deleteCreditTransaction:(id)      => req("DELETE", `/credit/transactions/${id}`),
+  getCreditSummary:      (personId, month) => req("GET", `/credit/summary/${personId}?month=${month||""}`),
 };

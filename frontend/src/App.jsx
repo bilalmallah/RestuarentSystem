@@ -10,6 +10,8 @@ import HistoryPage from "./pages/HistoryPage";
 import KitchenItemsPage from "./pages/KitchenItemsPage";
 import ClosingChecklistPage from "./pages/ClosingChecklistPage";
 import ReorderListsPage from "./pages/ReorderListsPage";
+import CreditPersonsPage from "./pages/CreditPersonsPage";
+import CreditLedgerPage from "./pages/CreditLedgerPage";
 
 const NAV = [
   { section: "FINANCE" },
@@ -19,6 +21,8 @@ const NAV = [
   { id: "employees",    label: "Employees",           icon: "👥" },
   { id: "expenses",     label: "Expenses",            icon: "🧾" },
   { id: "reports",      label: "Monthly Reports",     icon: "📊" },
+  { section: "CREDIT" },
+  { id: "credit",       label: "Khata / Credit Book", icon: "💳" },
   { section: "KITCHEN" },
   { id: "kitchen-items",      label: "Kitchen Items",       icon: "🥬" },
   { id: "closing-checklist",  label: "Closing Checklist",   icon: "✅" },
@@ -28,19 +32,37 @@ const NAV = [
 export default function App() {
   const { user, logout } = useAuth();
   const [page, setPage] = useState("dashboard");
+  const [selectedCreditPerson, setSelectedCreditPerson] = useState(null);
 
   if (!user) return <LoginPage />;
 
-  const pages = {
-    dashboard:          <DashboardPage />,
-    commissions:        <CommissionsPage />,
-    history:            <HistoryPage />,
-    employees:          <EmployeesPage />,
-    expenses:           <ExpensesPage />,
-    reports:            <ReportsPage />,
-    "kitchen-items":     <KitchenItemsPage />,
-    "closing-checklist": <ClosingChecklistPage />,
-    "reorder-lists":     <ReorderListsPage />,
+  const handleNavClick = (id) => {
+    setPage(id);
+    if (id !== "credit") setSelectedCreditPerson(null);
+  };
+
+  const renderPage = () => {
+    switch (page) {
+      case "dashboard":          return <DashboardPage />;
+      case "commissions":        return <CommissionsPage />;
+      case "history":            return <HistoryPage />;
+      case "employees":          return <EmployeesPage />;
+      case "expenses":           return <ExpensesPage />;
+      case "reports":            return <ReportsPage />;
+      case "credit":
+        return selectedCreditPerson
+          ? <CreditLedgerPage
+              person={selectedCreditPerson}
+              onBack={() => setSelectedCreditPerson(null)}
+            />
+          : <CreditPersonsPage
+              onSelectPerson={(p) => setSelectedCreditPerson(p)}
+            />;
+      case "kitchen-items":      return <KitchenItemsPage />;
+      case "closing-checklist":  return <ClosingChecklistPage />;
+      case "reorder-lists":      return <ReorderListsPage />;
+      default:                   return <DashboardPage />;
+    }
   };
 
   return (
@@ -63,7 +85,7 @@ export default function App() {
             );
             const active = page === n.id;
             return (
-              <button key={n.id} onClick={() => setPage(n.id)} style={{
+              <button key={n.id} onClick={() => handleNavClick(n.id)} style={{
                 display:"flex", alignItems:"center", gap:10,
                 width:"100%", padding:"10px 20px",
                 background: active ? "rgba(245,166,35,0.1)" : "transparent",
@@ -99,7 +121,7 @@ export default function App() {
 
       {/* Main content */}
       <div style={{ marginLeft:240, flex:1, padding:"28px 32px", overflowY:"auto", minHeight:"100vh" }}>
-        {pages[page] || <DashboardPage />}
+        {renderPage()}
       </div>
     </div>
   );
